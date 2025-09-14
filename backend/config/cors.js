@@ -1,4 +1,5 @@
 const allowedOrigins = [
+  'https://telegram-bot-4kn5.onrender.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000', 
   'http://localhost:5174',
@@ -7,6 +8,7 @@ const allowedOrigins = [
   'https://www.yourdomain.com',
   'https://arcxzone.com',
   'https://www.arcxzone.com'
+  
 ];
 
 const corsOptions = {
