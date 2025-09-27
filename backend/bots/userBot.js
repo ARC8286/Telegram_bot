@@ -44,7 +44,7 @@ class UserBot {
                 
                 await this.handleContentRequest(ctx, contentId);
             } else {
-                ctx.reply('Welcome to Arcxzone Download Bot! 🤖\n\nThis bot provides access to movies and series. Use the website to browse content.');
+                ctx.reply('Welcome to Arcxzone Download Bot! 🤖\n\nThis bot provides access to movies and series. Use the website to browse content.\n\n[Visit Website](https://arc-xzone-webapp.vercel.app/)');
             }
         });
         
@@ -121,7 +121,8 @@ class UserBot {
                 parseInt(movie.telegramMessageId)
             );
             
-            // DO NOT send any additional messages - the file caption already has everything
+            // Send completion message for movie
+            await ctx.reply(`✅ Movie sent! Enjoy watching ${movie.title} 🎬 .\n\n [For more visit- https://arc-xzone-webapp.vercel.app/]`);
             
         } catch (error) {
             console.error('Error delivering movie:', error);
@@ -144,7 +145,7 @@ class UserBot {
                 parseInt(episode.telegramMessageId)
             );
             
-            // DO NOT send additional messages for episodes either
+            // DO NOT send additional messages for episodes as they're handled in sendAllEpisodes
             
         } catch (error) {
             console.error('Error delivering episode:', error);
@@ -280,10 +281,10 @@ class UserBot {
             }
             
             // Send completion message
-            await ctx.reply(`✅ All ${episodes.length} episodes sent! Enjoy watching ${series.title} 🎬`);
+            await ctx.reply(`✅ All ${episodes.length} episodes sent! Enjoy watching ${series.title} 🎬 .\n\n [For more visit- https://arc-xzone-webapp.vercel.app/]`);
             
         } catch (error) {
-            console.error('Error sending all episodes:', error);
+            console.error('Error sending all epi    sodes:', error);
             await ctx.reply('❌ An error occurred while sending episodes. Please try again.');
         }
     }
