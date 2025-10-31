@@ -19,6 +19,7 @@ class UploadBot {
         this.bulkEpisodeState = new Map();
         this.bulkAddSeasonState = new Map();
         this.bulkAddEpisodeState = new Map();
+        this.viewContentState = new Map(); // NEW: For pagination state
 
         console.log('UploadBot token check:', !!this.botToken);
 
@@ -64,7 +65,7 @@ class UploadBot {
 /uploadseries - Create a series with episodes (bulk upload supported)
 /addseason - Add a season to existing series (bulk upload supported)
 /addepisode - Add episodes to existing season (bulk upload supported)
-/viewcontent - View all content
+/viewcontent - View all content with pagination and analytics
 /findcontent - Find specific content
 /editcontent - Edit existing content
 /deletecontent - Delete content
@@ -86,7 +87,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -113,7 +115,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -149,7 +152,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -178,7 +182,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -194,7 +199,7 @@ class UploadBot {
             await ctx.reply('🎬 Let\'s add episodes to an existing season with bulk upload!\n\nPlease send me the series ID:');
         });
 
-        // View content command
+        // View content command - UPDATED WITH PAGINATION
         this.bot.command('viewcontent', async (ctx) => {
             const userId = ctx.from.id;
             const user = await User.findOne({ telegramId: userId });
@@ -206,11 +211,12 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
-            await this.showAllContent(ctx, userId);
+            await this.showAllContentWithPagination(ctx, userId, 0);
         });
 
         // Find content command
@@ -225,7 +231,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -249,7 +256,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -273,7 +281,8 @@ class UploadBot {
             if (this.pendingOperations.has(userId) || this.seriesCreationState.has(userId) ||
                 this.editingState.has(userId) || this.seriesEditState.has(userId) ||
                 this.bulkMovieState.has(userId) || this.bulkEpisodeState.has(userId) ||
-                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId)) {
+                this.bulkAddSeasonState.has(userId) || this.bulkAddEpisodeState.has(userId) ||
+                this.viewContentState.has(userId)) {
                 return ctx.reply('❌ You already have an operation in progress. Use /cancel first.');
             }
 
@@ -313,6 +322,9 @@ class UploadBot {
             } else if (this.bulkAddEpisodeState.has(userId)) {
                 this.bulkAddEpisodeState.delete(userId);
                 await ctx.reply('✅ Bulk episode addition cancelled successfully.');
+            } else if (this.viewContentState.has(userId)) {
+                this.viewContentState.delete(userId);
+                await ctx.reply('✅ Content viewing cancelled successfully.');
             } else {
                 await ctx.reply('❌ No pending operation to cancel.');
             }
@@ -322,6 +334,12 @@ class UploadBot {
         this.bot.on('text', async (ctx) => {
             const userId = ctx.from.id;
             const messageText = ctx.message.text;
+
+            // Handle view content pagination
+            if (this.viewContentState.has(userId)) {
+                await this.handleViewContentPagination(ctx, userId, messageText);
+                return;
+            }
 
             // Handle bulk movie operations
             if (this.bulkMovieState.has(userId)) {
@@ -397,6 +415,233 @@ class UploadBot {
             console.error(`Error in upload bot:`, err);
             ctx.reply('❌ An error occurred. Please try again.');
         });
+    }
+
+    // NEW: Handle view content pagination
+    async handleViewContentPagination(ctx, userId, messageText) {
+        const state = this.viewContentState.get(userId);
+
+        try {
+            const action = messageText.toLowerCase();
+            
+            if (action === 'next' && state.currentPage < state.totalPages - 1) {
+                state.currentPage++;
+                this.viewContentState.set(userId, state);
+                await this.sendContentPage(ctx, userId, state.currentPage);
+            } else if (action === 'prev' && state.currentPage > 0) {
+                state.currentPage--;
+                this.viewContentState.set(userId, state);
+                await this.sendContentPage(ctx, userId, state.currentPage);
+            } else if (action === 'analytics') {
+                await this.showContentAnalytics(ctx, userId);
+            } else if (action === 'close') {
+                this.viewContentState.delete(userId);
+                await ctx.reply('✅ Content viewing closed.');
+            } else if (action === 'refresh') {
+                await this.sendContentPage(ctx, userId, state.currentPage);
+            } else {
+                await ctx.reply('❌ Invalid option. Please use: next, prev, analytics, refresh, or close');
+            }
+        } catch (error) {
+            console.error('Error in view content pagination:', error);
+            await ctx.reply('❌ An error occurred. Please try /viewcontent again.');
+            this.viewContentState.delete(userId);
+        }
+    }
+
+    // NEW: Show all content with pagination
+    async showAllContentWithPagination(ctx, userId, page = 0) {
+        try {
+            const ITEMS_PER_PAGE = 10;
+
+            // Get analytics first
+            const totalMovies = await Content.countDocuments();
+            const totalSeries = await Series.countDocuments();
+            const totalContent = totalMovies + totalSeries;
+
+            // Get paginated content
+            const movies = await Content.find()
+                .sort({ createdAt: -1 })
+                .skip(page * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
+
+            const series = await Series.find()
+                .sort({ createdAt: -1 })
+                .skip(page * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
+
+            const allContent = [...movies, ...series]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, ITEMS_PER_PAGE);
+
+            const totalPages = Math.ceil(totalContent / ITEMS_PER_PAGE);
+
+            // Store pagination state
+            this.viewContentState.set(userId, {
+                currentPage: page,
+                totalPages: totalPages,
+                totalContent: totalContent,
+                totalMovies: totalMovies,
+                totalSeries: totalSeries
+            });
+
+            await this.sendContentPage(ctx, userId, page);
+
+        } catch (error) {
+            console.error('Error showing all content with pagination:', error);
+            await ctx.reply('❌ An error occurred while fetching content. Please try again.');
+        }
+    }
+
+    // NEW: Send content page with pagination controls
+    async sendContentPage(ctx, userId, page) {
+        const state = this.viewContentState.get(userId);
+        const ITEMS_PER_PAGE = 10;
+
+        try {
+            // Get paginated content
+            const movies = await Content.find()
+                .sort({ createdAt: -1 })
+                .skip(page * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
+
+            const series = await Series.find()
+                .sort({ createdAt: -1 })
+                .skip(page * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
+
+            const allContent = [...movies, ...series]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, ITEMS_PER_PAGE);
+
+            if (allContent.length === 0) {
+                await ctx.reply('❌ No content available yet.');
+                this.viewContentState.delete(userId);
+                return;
+            }
+
+            let response = `📋 Content Library (Page ${page + 1}/${state.totalPages})\n\n`;
+            response += `📊 Total: ${state.totalContent} items (${state.totalMovies} movies, ${state.totalSeries} series)\n\n`;
+
+            allContent.forEach((item, index) => {
+                const globalIndex = (page * ITEMS_PER_PAGE) + index + 1;
+                const isMovie = item.contentId !== undefined;
+                const deepLink = `https://t.me/${TELEGRAM_CONFIG.BOT_USERNAME}?start=${isMovie ? item.contentId : item.seriesId}`;
+                
+                if (isMovie) {
+                    response += `${globalIndex}. 🎬 ${item.title} (${item.year})\n   ID: ${item.contentId}\n   Link: ${deepLink}\n\n`;
+                } else {
+                    response += `${globalIndex}. 📺 ${item.title} (${item.year})\n   ID: ${item.seriesId}\n   Link: ${deepLink}\n\n`;
+                }
+            });
+
+            // Add pagination controls
+            response += `\n📄 Navigation:\n`;
+            
+            if (page > 0) {
+                response += `• Type "prev" for previous page\n`;
+            }
+            if (page < state.totalPages - 1) {
+                response += `• Type "next" for next page\n`;
+            }
+            
+            response += `• Type "analytics" for detailed statistics\n`;
+            response += `• Type "refresh" to refresh current page\n`;
+            response += `• Type "close" to exit content view\n`;
+
+            await ctx.reply(response);
+
+        } catch (error) {
+            console.error('Error sending content page:', error);
+            await ctx.reply('❌ An error occurred while displaying content. Please try again.');
+        }
+    }
+
+    // NEW: Show detailed content analytics
+    async showContentAnalytics(ctx, userId) {
+        try {
+            const state = this.viewContentState.get(userId);
+            
+            // Get additional analytics
+            const recentMovies = await Content.find()
+                .sort({ createdAt: -1 })
+                .limit(5);
+
+            const recentSeries = await Series.find()
+                .sort({ createdAt: -1 })
+                .limit(5);
+
+            // Get content by type
+            const moviesByYear = await Content.aggregate([
+                {
+                    $group: {
+                        _id: '$year',
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: -1 } }
+            ]);
+
+            const seriesByType = await Series.aggregate([
+                {
+                    $group: {
+                        _id: '$type',
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            let response = `📊 Content Analytics\n\n`;
+            response += `📈 Overview:\n`;
+            response += `• Total Content: ${state.totalContent} items\n`;
+            response += `• Movies: ${state.totalMovies}\n`;
+            response += `• Series: ${state.totalSeries}\n`;
+            response += `• Pages: ${state.totalPages}\n\n`;
+
+            if (moviesByYear.length > 0) {
+                response += `🎬 Movies by Year:\n`;
+                moviesByYear.forEach(item => {
+                    response += `• ${item._id}: ${item.count} movies\n`;
+                });
+                response += `\n`;
+            }
+
+            if (seriesByType.length > 0) {
+                response += `📺 Series by Type:\n`;
+                seriesByType.forEach(item => {
+                    const typeName = item._id === 'webseries' ? 'Web Series' : 'Anime';
+                    response += `• ${typeName}: ${item.count}\n`;
+                });
+                response += `\n`;
+            }
+
+            if (recentMovies.length > 0) {
+                response += `🆕 Recent Movies:\n`;
+                recentMovies.forEach(movie => {
+                    response += `• ${movie.title} (${movie.year})\n`;
+                });
+                response += `\n`;
+            }
+
+            if (recentSeries.length > 0) {
+                response += `🆕 Recent Series:\n`;
+                recentSeries.forEach(series => {
+                    response += `• ${series.title} (${series.year})\n`;
+                });
+                response += `\n`;
+            }
+
+            response += `💡 Commands:\n`;
+            response += `• Type "prev" or "next" to navigate pages\n`;
+            response += `• Type "refresh" to refresh current view\n`;
+            response += `• Type "close" to exit content view\n`;
+
+            await ctx.reply(response);
+
+        } catch (error) {
+            console.error('Error showing content analytics:', error);
+            await ctx.reply('❌ An error occurred while generating analytics. Please try again.');
+        }
     }
 
     // NEW: Handle bulk add season operations
@@ -535,7 +780,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -814,7 +1059,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -1086,7 +1331,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit (2GB Telegram limit)
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -1424,7 +1669,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -1726,7 +1971,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit (2GB Telegram limit)
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -2019,7 +2264,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -2338,7 +2583,7 @@ class UploadBot {
             const fileSize = file.file_size;
 
             // Check file size limit
-            if (fileSize > 2000 * 1024 * 1024) {
+            if (fileSize > 4000 * 1024 * 1024) {
                 return ctx.reply('❌ File is too large. Telegram has a 2GB limit for files.');
             }
 
@@ -2661,48 +2906,7 @@ class UploadBot {
         }
     }
 
-    async showAllContent(ctx, userId) {
-        try {
-            // Get all movies
-            const movies = await Content.find().sort({ createdAt: -1 }).limit(20);
-
-            // Get all series
-            const series = await Series.find().sort({ createdAt: -1 }).limit(20);
-
-            if (movies.length === 0 && series.length === 0) {
-                await ctx.reply('❌ No content available yet.');
-                return;
-            }
-
-            let response = '📋 All Content:\n\n';
-
-            if (movies.length > 0) {
-                response += '🎬 Movies:\n';
-                movies.forEach(movie => {
-                    const deepLink = `https://t.me/${TELEGRAM_CONFIG.BOT_USERNAME}?start=${movie.contentId}`;
-                    response += `• ${movie.title} (${movie.year}) - ID: ${movie.contentId}\nDeep Link: ${deepLink}\n\n`;
-                });
-            }
-
-            if (series.length > 0) {
-                response += '📺 Series:\n';
-                series.forEach(serie => {
-                    const deepLink = `https://t.me/${TELEGRAM_CONFIG.BOT_USERNAME}?start=${serie.seriesId}`;
-                    response += `• ${serie.title} (${serie.year}) - ID: ${serie.seriesId}\nDeep Link: ${deepLink}\n\n`;
-                });
-            }
-
-            if (movies.length + series.length > 20) {
-                response += '\nℹ️ Showing latest 20 items. Use /findcontent to search for specific content.';
-            }
-
-            await ctx.reply(response);
-
-        } catch (error) {
-            console.error('Error showing all content:', error);
-            await ctx.reply('❌ An error occurred while fetching content. Please try again.');
-        }
-    }
+    // REMOVED: Old showAllContent function - replaced with paginated version
 
     generateMovieCaption(movieData) {
         let caption = `<b>${movieData.title}</b> (${movieData.year})\n`;
